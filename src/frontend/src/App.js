@@ -1,23 +1,24 @@
-import { useState, useEffect } from 'react'
 import {
     Table,
     Layout,
     Menu,
     Breadcrumb,
     Empty,
-    Spin } from 'antd';
-
+    Spin, Button, Tag, Space, Radio
+} from 'antd';
 import {
     DesktopOutlined,
     PieChartOutlined,
     FileOutlined,
     TeamOutlined,
     LoadingOutlined,
-    UserOutlined } from '@ant-design/icons';
+    UserOutlined, DownloadOutlined, PlusOutlined
+} from '@ant-design/icons';
+import { useState, useEffect } from 'react'
 import './App.css';
 import fetch from "unfetch";
-//import { getAllStudents } from "./client";
-
+import { getAllStudents } from "./client";
+import StudentDrawerForm from "./StudentDrawerForm";
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
 function App() {
@@ -27,7 +28,7 @@ function App() {
     const [students, setStudents] = useState([]);
     const [collapsed, setCollapsed] = useState(false);
     const [fetching, setFetching] = useState(true);
-
+    const [showDrawer, setShowDrawer] = useState(false);
 
     const columns = [
         {
@@ -49,7 +50,20 @@ function App() {
             title: 'Gender',
             dataIndex: 'gender',
             key: 'gender',
-        }
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (text, record) => (
+                <Space size="middle">
+                    <Radio.Group value="medium">
+                        <Radio.Button value="large">Delete</Radio.Button>
+                        <Radio.Button value="default">Edit</Radio.Button>
+
+                    </Radio.Group>
+                </Space>
+            ),
+        },
     ];
 
     const fetchStudents = () => {
@@ -74,15 +88,30 @@ function App() {
         if (students.length < 0 ) {
             return <Empty />;
         }
-        return <Table
-            dataSource={students}
-            columns={columns}
-            bordered
-            title={() => "Students"}
-            pagination={{pageSize: 50}}
-            scroll={{ y: 200 }}
-            rowKey={student => student.id}
-         />;
+        return <>
+
+            <StudentDrawerForm
+                showDrawer={showDrawer}
+                setShowDrawer={setShowDrawer}
+                fetchStudents={fetchStudents}
+            />
+            <Table
+                dataSource={students}
+                columns={columns}
+                bordered
+                title={() =>
+                    <Button
+                        onClick={() => setShowDrawer(!showDrawer)}
+                        type="primary" shape="round" icon={<PlusOutlined/>} size="small">
+                        Add New Student
+                    </Button>
+                }
+                pagination={{pageSize: 50}}
+                scroll={{y: 500}}
+                rowKey={student => student.id}
+
+            />;
+        </>
     }
 
     return (
@@ -125,6 +154,7 @@ function App() {
             <Footer style={{ textAlign: 'center' }}>By Allen Harper</Footer>
         </Layout>
     </Layout>
+
     )
 
 
